@@ -176,6 +176,7 @@ redis_arg2(struct msg *r)
     case MSG_REQ_REDIS_ZREMRANGEBYSCORE:
 
     case MSG_REQ_REDIS_RESTORE:
+	case MSG_REQ_REDIS_GEODIST:
         return true;
 
     default:
@@ -249,6 +250,11 @@ redis_argn(struct msg *r)
     case MSG_REQ_REDIS_ZREVRANGEBYSCORE:
     case MSG_REQ_REDIS_ZUNIONSTORE:
     case MSG_REQ_REDIS_ZSCAN:
+	case MSG_REQ_REDIS_GEOADD:
+	case MSG_REQ_REDIS_GEOHASH:
+	case MSG_REQ_REDIS_GEOPOS:
+	case MSG_REQ_REDIS_GEORADIUS:
+	case MSG_REQ_REDIS_GEORADIUSBYMEMBER:
         return true;
 
     default:
@@ -774,6 +780,10 @@ redis_parse_req(struct msg *r)
                 break;
 
             case 6:
+				if (str6icmp(m, 'g', 'e', 'o', 'a', 'd', 'd')) {
+                    r->type = MSG_REQ_REDIS_GEOADD;
+                    break;
+                }
                 if (str6icmp(m, 'a', 'p', 'p', 'e', 'n', 'd')) {
                     r->type = MSG_REQ_REDIS_APPEND;
                     break;
@@ -879,9 +889,24 @@ redis_parse_req(struct msg *r)
                     break;
                 }
 
+				if (str6icmp(m, 'g', 'e', 'o', 'p', 'o', 's')) {
+                    r->type = MSG_REQ_REDIS_ZSCORE;
+                    break;
+                }
+
                 break;
 
             case 7:
+				if (str7icmp(m, 'g', 'e', 'o', 'h', 'a', 's', 'h')) {
+                    r->type = MSG_REQ_REDIS_GEOHASH;
+                    break;
+                }
+				
+				if (str7icmp(m, 'g', 'e', 'o', 'd', 'i', 's', 't')) {
+                    r->type = MSG_REQ_REDIS_GEODIST;
+                    break;
+                }
+				
                 if (str7icmp(m, 'p', 'e', 'r', 's', 'i', 's', 't')) {
                     r->type = MSG_REQ_REDIS_PERSIST;
                     break;
@@ -973,6 +998,11 @@ redis_parse_req(struct msg *r)
                 break;
 
             case 9:
+				if (str9icmp(m, 'g', 'e', 'o', 'r', 'a', 'd', 'i', 'u', 's')) {
+                    r->type = MSG_REQ_REDIS_GEORADIUS;
+                    break;
+                }
+				
                 if (str9icmp(m, 'p', 'e', 'x', 'p', 'i', 'r', 'e', 'a', 't')) {
                     r->type = MSG_REQ_REDIS_PEXPIREAT;
                     break;
@@ -1090,6 +1120,13 @@ redis_parse_req(struct msg *r)
 
                 break;
 
+			case 17:
+				 //if (str17icmp(m, 'g', 'e', 'o', 'r', 'a', 'd', 'i', 'u', 's', 'b', 'y', 'm', 'e', 'm', 'b', 'e', 'r')) {
+                 //   r->type = MSG_REQ_REDIS_GEORADIUSBYMEMBER;
+                 //   break;
+                 //}
+				 break;
+				 
             default:
                 break;
             }
